@@ -1,14 +1,44 @@
-<script setup>
-import { ref } from 'vue'
+<script setup lang="ts">
 import { ElMessage } from 'element-plus'
 import Navbar from '@/components/Navbar.vue'
+import { getChallengeById } from '@/api/Challenges'
+import type { Challenge } from '@/types/Challenge'
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 
+const route = useRoute()
 const progress = ref(60)
 const reflection = ref('')
 
 const submitChallenge = () => {
-  ElMessage.warning('Please write a short description before submitting.')
+  if (!reflection.value.trim()) {
+    ElMessage.warning('Please write a short description before submitting.')
+    return
+  }
+  // Add your submit logic here
+  ElMessage.success('Challenge submitted successfully!')
 }
+
+const challenge = ref<Challenge | null>(null)
+const loading = ref(true)
+const error = ref(false)
+
+onMounted(async () => {
+  const challengeId = Number(route.params.id)
+  console.log('Fetching challenge with ID:', challengeId)
+
+  try {
+    const response: Challenge = await getChallengeById(challengeId)
+    challenge.value = response
+    console.log('Fetched challenge:', challenge.value)
+  } catch (err) {
+    console.error('Error fetching challenge:', err)
+    error.value = true
+    ElMessage.error('Failed to load challenge')
+  } finally {
+    loading.value = false
+  }
+})
 </script>
 
 <template>
@@ -20,19 +50,31 @@ const submitChallenge = () => {
         <el-col :span="2" />
 
         <el-col :span="20">
-          <el-card class="challenge-card">
-            <h1 class="title">Daily 20 Minute Walk</h1>
+          <!-- Loading State -->
+          <el-card v-if="loading" class="challenge-card">
+            <el-skeleton :rows="8" animated />
+          </el-card>
+
+          <!-- Error State -->
+          <el-card v-else-if="error" class="challenge-card">
+            <el-empty description="Failed to load challenge">
+              <el-button type="primary" @click="$router.push('/')"> Go Back Home </el-button>
+            </el-empty>
+          </el-card>
+
+          <!-- Content State -->
+          <el-card v-else-if="challenge" class="challenge-card">
+            <h1 class="title">{{ challenge.name }}</h1>
 
             <div class="meta">
-              <span class="date">Due: March 30, 2025</span>
+              <span class="date">{{ challenge.end_date }}</span>
               <el-tag type="info">Physical</el-tag>
-              <span class="point">+50 points </span>
+              <span class="point">+50 points</span>
             </div>
 
             <!-- Description -->
             <p class="description">
-              Take a 20 minute walk outside to improve cardiovascular health. Maintain a steady pace
-              and reflect on how you felt during the activity.
+              {{ challenge.description }}
             </p>
 
             <!-- Progress -->
@@ -59,6 +101,11 @@ const submitChallenge = () => {
                 Submit Challenge
               </el-button>
             </div>
+          </el-card>
+
+          <!-- Fallback (shouldn't happen) -->
+          <el-card v-else class="challenge-card">
+            <el-empty description="Challenge not found" />
           </el-card>
         </el-col>
 

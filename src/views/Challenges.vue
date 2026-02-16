@@ -10,8 +10,8 @@ const loading = ref(true)
 
 onMounted(async () => {
   try {
-    const response = await getChallenges()
-    challenges.value = response.data
+    const response: Challenge[] = await getChallenges()
+    challenges.value = response
   } catch (error) {
     console.error('Error fetching challenges:', error)
   } finally {
@@ -28,11 +28,16 @@ onMounted(async () => {
         <el-row :gutter="20">
           <el-col
             :span="8"
-            v-for="n in 6"
+            v-for="n in challenges.length"
             :key="n"
             style="display: flex; justify-content: center; margin-bottom: 20px"
           >
-            <Card :id="n" title="Hello world" description="This is the temp description!" />
+            <Card
+              :id="challenges[n - 1].id"
+              :title="challenges[n - 1].title"
+              :description="challenges[n - 1].name"
+              :end_date="challenges[n - 1].end_date"
+            />
           </el-col>
         </el-row>
       </div>

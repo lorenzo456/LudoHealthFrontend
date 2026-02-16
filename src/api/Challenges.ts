@@ -13,7 +13,7 @@ export const getChallenges = async (): Promise<Challenge[]> => {
 
 export const getChallengeById = async (id: number): Promise<Challenge> => {
   try {
-    const response = await apiClient.get(`/challenge/${id}`)
+    const response = await apiClient.get(`/challenges/${id}`)
     return response.data as Challenge
   } catch (error) {
     console.error(`Error fetching challenge with id ${id}:`, error)
