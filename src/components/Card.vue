@@ -1,17 +1,20 @@
 <template>
-  <el-card class="my-card">
-    <div class="image-container">
-      <img src="https://picsum.photos/400/200" alt="Sample Image" />
-    </div>
-    <div class="card-content">
-      <h3>{{title}}</h3>
-      <p>{{description}}</p>
-    </div>
-  </el-card>
+  <router-link :to="`/challenge/${id}`" class="card-link">
+    <el-card class="my-card">
+      <div class="image-container">
+        <img src="https://picsum.photos/400/200" alt="Sample Image" />
+      </div>
+      <div class="card-content">
+        <h3>{{ title }}</h3>
+        <p>{{ description }}</p>
+      </div>
+    </el-card>
+  </router-link>
 </template>
 
 <script setup lang="ts">
 defineProps<{
+  id: number
   title?: string
   description?: string
 }>()
@@ -24,7 +27,12 @@ defineProps<{
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
-
+.card-link {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  display: block;
+}
 .image-container {
   width: 100%;
   height: 200px;
