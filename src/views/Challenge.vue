@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
 import Navbar from '@/components/Navbar.vue'
-import { getChallengeById } from '@/api/Challenges'
+import { getChallengeById, getChallengeRules } from '@/api/Challenges'
 import type { Challenge } from '@/types/Challenge'
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { Rule } from '@/types/Rule'
+import { fi } from 'element-plus/es/locales.mjs'
 
 const route = useRoute()
 const progress = ref(60)
@@ -20,11 +22,13 @@ const submitChallenge = () => {
 }
 
 const challenge = ref<Challenge | null>(null)
+const rules = ref<Rule[] | null>(null)
 const loading = ref(true)
 const error = ref(false)
 
 onMounted(async () => {
   const challengeId = Number(route.params.id)
+
   console.log('Fetching challenge with ID:', challengeId)
 
   try {
@@ -35,6 +39,19 @@ onMounted(async () => {
     console.error('Error fetching challenge:', err)
     error.value = true
     ElMessage.error('Failed to load challenge')
+  } finally {
+    loading.value = false
+  }
+
+  try {
+    const rulesResponse: Rule[] = await getChallengeRules(challengeId)
+    console.log('Fetched rules response:', rulesResponse)
+    rules.value = rulesResponse
+    console.log('Fetched rules:', rules.value)
+  } catch (err) {
+    console.error('Error fetching rules:', err)
+    error.value = true
+    ElMessage.error('Failed to load challenge rules')
   } finally {
     loading.value = false
   }
@@ -68,8 +85,8 @@ onMounted(async () => {
 
             <div class="meta">
               <span class="date">{{ challenge.end_date }}</span>
-              <el-tag type="info">Physical</el-tag>
-              <span class="point">+50 points</span>
+              <!-- <el-tag type="info">Physical</el-tag> -->
+              <!-- <span class="point">+50 points</span> -->
             </div>
 
             <!-- Description -->
@@ -77,16 +94,40 @@ onMounted(async () => {
               {{ challenge.description }}
             </p>
 
-            <!-- Progress -->
+            <el-divider />
+
+            <!-- rules -->
+            <div class="rules-section" v-if="rules && rules.length" style="margin-bottom: 20px">
+              <h3>Activities</h3>
+              <el-row :gutter="16">
+                <el-col v-for="rule in rules" :key="rule.id" :span="24" style="margin-bottom: 10px">
+                  <el-card shadow="hover">
+                    <div>
+                      <strong>{{ rule.name }}</strong>
+                    </div>
+                    <div>
+                      <el-tag type="info">{{ rule.category }}</el-tag>
+                    </div>
+                    <div>{{ rule.description }}</div>
+                    <div>Frequency: {{ rule.max_frequency }}</div>
+                    <div style="margin-top: 5px; font-weight: 500">
+                      Points: <span class="point">{{ rule.points }}</span>
+                    </div>
+                  </el-card>
+                </el-col>
+              </el-row>
+            </div>
+
+            <!-- Progress
             <div class="progress-section">
               <el-progress :percentage="progress" :stroke-width="18" />
               <p class="description">12/20 minutes completed</p>
-            </div>
+            </div> -->
 
-            <el-divider />
+            <!-- <el-divider /> -->
 
             <!-- Submission Section -->
-            <div class="submission-section">
+            <!-- <div class="submission-section">
               <h3>Manually submit Your Completion</h3>
 
               <el-input
@@ -100,7 +141,7 @@ onMounted(async () => {
               <el-button type="primary" class="submit-btn" @click="submitChallenge">
                 Submit Challenge
               </el-button>
-            </div>
+            </div> -->
           </el-card>
 
           <!-- Fallback (shouldn't happen) -->
