@@ -7,4 +7,5 @@ export interface Rule {
   points: number
   name: string
   max_frequency: number
+  device_id: number
 }

@@ -12,19 +12,26 @@ const route = useRoute()
 const progress = ref(60)
 const reflection = ref('')
 
-const submitChallenge = () => {
-  if (!reflection.value.trim()) {
-    ElMessage.warning('Please write a short description before submitting.')
-    return
-  }
-  // Add your submit logic here
-  ElMessage.success('Challenge submitted successfully!')
-}
-
 const challenge = ref<Challenge | null>(null)
 const rules = ref<Rule[] | null>(null)
 const loading = ref(true)
 const error = ref(false)
+
+const isChallengeModalVisible = ref(false)
+const selectedRule = ref<Rule | null>(null)
+
+const handleRuleClick = (rule: Rule) => {
+  if (rule.device_id === 1) {
+    selectedRule.value = rule
+    isChallengeModalVisible.value = true
+  }
+}
+
+const submitActivity = () => {
+  // ElMessage.info('Submitting your activity...')
+  ElMessage.success(`Manually submitting activity for rule: ${selectedRule.value?.name}`)
+  // Here you would typically make an API call to submit the activity
+}
 
 onMounted(async () => {
   const challengeId = Number(route.params.id)
@@ -60,6 +67,31 @@ onMounted(async () => {
 
 <template>
   <Navbar />
+
+  <!-- Challenge Modal -->
+  <el-dialog
+    v-model="isChallengeModalVisible"
+    :title="selectedRule?.name || 'Rule Details'"
+    width="500px"
+    :close-on-click-modal="false"
+    :destroy-on-close="true"
+    center
+  >
+    <div v-if="selectedRule">
+      <p>
+        <strong>
+          Manually registering <em>{{ selectedRule.name }}</em> activity
+        </strong>
+      </p>
+    </div>
+    <template v-slot:footer v-if="selectedRule">
+      <span class="dialog-footer">
+        <el-button @click="(submitActivity(), (isChallengeModalVisible = false))">
+          Submit activity manually
+        </el-button>
+      </span>
+    </template>
+  </el-dialog>
 
   <el-container>
     <el-main>
@@ -101,19 +133,28 @@ onMounted(async () => {
               <h3>Activities</h3>
               <el-row :gutter="16">
                 <el-col v-for="rule in rules" :key="rule.id" :span="24" style="margin-bottom: 10px">
-                  <el-card shadow="hover">
-                    <div>
-                      <strong>{{ rule.name }}</strong>
-                    </div>
-                    <div>
-                      <el-tag type="info">{{ rule.category }}</el-tag>
-                    </div>
-                    <div>{{ rule.description }}</div>
-                    <div>Frequency: {{ rule.max_frequency }}</div>
-                    <div style="margin-top: 5px; font-weight: 500">
-                      Points: <span class="point">{{ rule.points }}</span>
-                    </div>
-                  </el-card>
+                  <div
+                    :style="{
+                      border: rule.device_id == 1 ? '1px solid rebeccapurple' : 'none',
+                      cursor: rule.device_id == 1 ? 'pointer' : 'default',
+                      pointerEvents: rule.device_id == 1 ? 'auto' : 'none',
+                    }"
+                    @click="handleRuleClick(rule)"
+                  >
+                    <el-card shadow="hover">
+                      <div>
+                        <strong>{{ rule.name }}</strong>
+                      </div>
+                      <div>
+                        <el-tag type="info">{{ rule.category }}</el-tag>
+                      </div>
+                      <div>{{ rule.description }}</div>
+                      <div>Frequency: {{ rule.max_frequency }}</div>
+                      <div style="margin-top: 5px; font-weight: 500">
+                        Points: <span class="point">{{ rule.points }}</span>
+                      </div>
+                    </el-card>
+                  </div>
                 </el-col>
               </el-row>
             </div>
