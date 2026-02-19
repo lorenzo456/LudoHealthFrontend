@@ -1,7 +1,6 @@
 <template>
-  <el-header>
+  <el-header class="nav-header">
     <el-row align="middle" class="nav-row">
-      <!-- Logo -->
       <el-col :xs="16" :sm="4" :md="4">
         <h2 class="logo">LudoHealth</h2>
       </el-col>
@@ -18,7 +17,6 @@
       </el-col>
     </el-row>
 
-    <!-- Mobile Drawer -->
     <el-drawer v-model="drawer" direction="ltr" size="220px">
       <el-menu mode="vertical" router :default-active="$route.path" @select="drawer = false">
         <el-menu-item index="/">Home</el-menu-item>
@@ -61,5 +59,11 @@ onUnmounted(() => {
 .hamburger {
   display: flex;
   justify-content: flex-end;
+}
+
+.nav-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 </style>
