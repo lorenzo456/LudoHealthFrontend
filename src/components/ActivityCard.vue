@@ -1,5 +1,9 @@
 <script setup lang="ts">
 // No props needed — all content is hardcoded for now
+import { Activity } from '@/types/Activity'
+defineProps<{
+  activity: Activity
+}>()
 </script>
 
 <template>
@@ -12,19 +16,19 @@
       <!-- Header: User + Date -->
       <div class="activity-header">
         <span class="user-name">Alice</span>
-        <span class="activity-date">Feb 18, 2026</span>
+        <span class="activity-date">{{ activity.created_at }}</span>
       </div>
 
       <!-- Activity text -->
       <p class="activity-text">
-        Completed a 20 min walk in the park! Feeling energized and refreshed.
+        {{ activity.activity_type_name }} {{ activity.value }} {{ activity.unit }}
       </p>
 
       <!-- Footer: Points and Likes -->
-      <div class="activity-footer">
+      <!-- <div class="activity-footer">
         <span class="points">+10 pts</span>
         <span class="likes">❤️ 5</span>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>

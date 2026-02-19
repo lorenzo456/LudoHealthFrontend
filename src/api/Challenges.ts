@@ -31,3 +31,13 @@ export const getChallengeRules = async (id: number): Promise<Rule> => {
     throw error
   }
 }
+
+export const getActiveChallengesFromPlayer = async (id: number): Promise<Challenge[]> => {
+  try {
+    const response = await apiClient.get(`/challenges/${id}/active`)
+    return response.data as Challenge[]
+  } catch (error) {
+    console.error(`Error fetching active challenges for player with id ${id}:`, error)
+    throw error
+  }
+}

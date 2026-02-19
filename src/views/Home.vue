@@ -2,6 +2,23 @@
 import { el } from 'element-plus/es/locales.mjs'
 import Navbar from '@/components/Navbar.vue'
 import ActivityCard from '@/components/ActivityCard.vue'
+import { Activity } from '@/types/Activity'
+import { ref, onMounted } from 'vue'
+import { getUserActivities } from '@/api/Activities'
+
+const activities = ref<Activity[]>([])
+const loading = ref(true)
+
+onMounted(async () => {
+  try {
+    const response = await getUserActivities(1)
+    activities.value = response
+  } catch (error) {
+    console.error('Error fetching activities:', error)
+  } finally {
+    loading.value = false
+  }
+})
 </script>
 
 <template>
@@ -11,7 +28,12 @@ import ActivityCard from '@/components/ActivityCard.vue'
       <el-row justify="center">
         <el-col :span="12">
           <div style="display: flex; flex-direction: column; align-items: center; margin-top: 20px">
-            <ActivityCard v-for="n in 50" :key="n" style="margin-bottom: 20px" />
+            <ActivityCard
+              v-for="activity in activities"
+              :key="activity.id"
+              :activity="activity"
+              style="margin-bottom: 20px"
+            />
           </div>
         </el-col>
       </el-row>
