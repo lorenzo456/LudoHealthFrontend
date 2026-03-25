@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
 import Navbar from '@/components/Navbar.vue'
-import { getChallengeById, getChallengeRules } from '@/api/Challenges'
+import { getChallengeById, getChallengeRules, getRuleProperties } from '@/api/Challenges'
 import type { Challenge } from '@/types/Challenge'
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { Rule } from '@/types/Rule'
-import { fi } from 'element-plus/es/locales.mjs'
 
 const route = useRoute()
-const progress = ref(60)
-const reflection = ref('')
 
 const challenge = ref<Challenge | null>(null)
 const rules = ref<Rule[] | null>(null)
@@ -30,7 +27,6 @@ const handleRuleClick = (rule: Rule) => {
 const submitActivity = () => {
   // ElMessage.info('Submitting your activity...')
   ElMessage.success(`Manually submitting activity for rule: ${selectedRule.value?.name}`)
-  // Here you would typically make an API call to submit the activity
 }
 
 onMounted(async () => {
@@ -54,13 +50,21 @@ onMounted(async () => {
     const rulesResponse: Rule[] = await getChallengeRules(challengeId)
     console.log('Fetched rules response:', rulesResponse)
     rules.value = rulesResponse
-    console.log('Fetched rules:', rules.value)
   } catch (err) {
     console.error('Error fetching rules:', err)
     error.value = true
     ElMessage.error('Failed to load challenge rules')
   } finally {
     loading.value = false
+  }
+
+  try {
+    for (const rule of rules.value || []) {
+      const properties: Property[] = await getRuleProperties(rule.id)
+      rule.properties = properties
+    }
+  } catch (err) {
+    console.error('Error logging rule properties:', err)
   }
 })
 </script>

@@ -1,4 +1,4 @@
-import type { Rule } from '@/types/Rule'
+import type { Property, Rule } from '@/types/Rule'
 import apiClient from './apiclient'
 import { type Challenge } from '@/types/Challenge'
 
@@ -28,6 +28,16 @@ export const getChallengeRules = async (id: number): Promise<Rule> => {
     return response.data as Rule
   } catch (error) {
     console.error(`Error fetching rules for challenge with id ${id}:`, error)
+    throw error
+  }
+}
+
+export const getRuleProperties = async (id: number): Promise<Property[]> => {
+  try {
+    const response = await apiClient.get(`/rules/${id}/properties`)
+    return response.data as Property[]
+  } catch (error) {
+    console.error(`Error fetching properties for rule with id ${id}:`, error)
     throw error
   }
 }

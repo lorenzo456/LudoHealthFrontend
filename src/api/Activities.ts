@@ -10,3 +10,13 @@ export const getUserActivities = async (userId: number): Promise<Activity[]> => 
     throw error
   }
 }
+
+export const createActivity = async (activity: Omit<Activity, 'id'>): Promise<Activity> => {
+  try {
+    const response = await apiClient.post('/activities', activity)
+    return response.data as Activity
+  } catch (error) {
+    console.error('Error creating activity:', error)
+    throw error
+  }
+}

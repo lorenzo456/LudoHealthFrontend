@@ -10,7 +10,7 @@ const loading = ref(true)
 
 onMounted(async () => {
   try {
-    const response: Challenge[] = await getActiveChallengesFromPlayer(1)
+    const response: Challenge[] = await getActiveChallengesFromPlayer(2)
     challenges.value = response
   } catch (error) {
     console.error('Error fetching challenges:', error)
