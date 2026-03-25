@@ -1,6 +1,7 @@
 export interface Rule {
   id: number
   challenge_id: number
+  activity_type_id: number
   rules: string
   category: string
   description: string
@@ -12,6 +13,7 @@ export interface Rule {
   properties: Property[]
 }
 export interface Property {
+  activity_property_id: number
   name: string
-  value: string
+  unit: string
 }

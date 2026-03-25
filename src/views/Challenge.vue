@@ -6,6 +6,7 @@ import type { Challenge } from '@/types/Challenge'
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { Rule } from '@/types/Rule'
+import { postActivity } from '@/api/Activities'
 
 const route = useRoute()
 
@@ -16,17 +17,34 @@ const error = ref(false)
 
 const isChallengeModalVisible = ref(false)
 const selectedRule = ref<Rule | null>(null)
+const propertyValues = ref<Record<number, number>>({})
 
 const handleRuleClick = (rule: Rule) => {
   if (rule.device_id === 1) {
     selectedRule.value = rule
+    propertyValues.value = Object.fromEntries(
+      rule.properties.map((p) => [p.activity_property_id, 0]),
+    )
     isChallengeModalVisible.value = true
   }
 }
 
-const submitActivity = () => {
-  // ElMessage.info('Submitting your activity...')
-  ElMessage.success(`Manually submitting activity for rule: ${selectedRule.value?.name}`)
+const submitActivity = async () => {
+  if (!selectedRule.value || !selectedRule.value.properties.length) return
+  try {
+    await postActivity({
+      player_id: 2,
+      device_id: selectedRule.value.device_id,
+      activity_type_id: selectedRule.value.activity_type_id,
+      properties: Object.entries(propertyValues.value).map(([id, value]) => ({
+        activity_property_id: Number(id),
+        value,
+      })),
+    })
+    ElMessage.success(`Activity submitted for: ${selectedRule.value.name}`)
+  } catch {
+    ElMessage.error('Failed to submit activity')
+  }
 }
 
 onMounted(async () => {
@@ -87,10 +105,24 @@ onMounted(async () => {
           Manually registering <em>{{ selectedRule.name }}</em> activity
         </strong>
       </p>
+      <el-form label-position="top" style="margin-top: 12px">
+        <el-form-item
+          v-for="prop in selectedRule.properties"
+          :key="prop.activity_property_id"
+          :label="prop.name"
+        >
+          <el-input-number
+            v-model="propertyValues[prop.activity_property_id]"
+            :min="0"
+            style="width: 100%"
+          />
+        </el-form-item>
+      </el-form>
     </div>
     <template v-slot:footer v-if="selectedRule">
       <span class="dialog-footer">
-        <el-button @click="(submitActivity(), (isChallengeModalVisible = false))">
+        <el-button @click="isChallengeModalVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="(submitActivity(), (isChallengeModalVisible = false))">
           Submit activity manually
         </el-button>
       </span>

@@ -1,4 +1,4 @@
-import type { Activity } from '@/types/Activity'
+import type { Activity, CreateActivityPayload } from '@/types/Activity'
 import apiClient from './apiclient'
 
 export const getUserActivities = async (userId: number): Promise<Activity[]> => {
@@ -11,12 +11,11 @@ export const getUserActivities = async (userId: number): Promise<Activity[]> => 
   }
 }
 
-export const createActivity = async (activity: Omit<Activity, 'id'>): Promise<Activity> => {
+export const postActivity = async (payload: CreateActivityPayload): Promise<void> => {
   try {
-    const response = await apiClient.post('/activities', activity)
-    return response.data as Activity
+    await apiClient.post('/activities', payload)
   } catch (error) {
-    console.error('Error creating activity:', error)
+    console.error('Error posting activity:', error)
     throw error
   }
 }
