@@ -20,9 +20,11 @@ defineProps<{
       </div>
 
       <!-- Activity text -->
-      <p class="activity-text">
-        {{ activity.activity_type_name }} {{ activity.value }} {{ activity.unit }}
-      </p>
+      <p class="activity-text">{{ activity.activity_type_name }}</p>
+      <div v-for="prop in activity.properties" :key="prop.name" class="activity-property">
+        <span class="property-name">{{ prop.name }}</span>
+        <span class="property-value">{{ prop.value }} {{ prop.unit }}</span>
+      </div>
 
       <!-- Footer: Points and Likes -->
       <!-- <div class="activity-footer">
@@ -72,8 +74,26 @@ defineProps<{
 
 .activity-text {
   font-size: 14px;
-  margin-bottom: 12px;
+  font-weight: 600;
+  margin-bottom: 6px;
   color: #444;
+}
+
+.activity-property {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.property-name {
+  text-transform: capitalize;
+  color: #888;
+}
+
+.property-value {
+  font-weight: 500;
 }
 
 .activity-footer {
