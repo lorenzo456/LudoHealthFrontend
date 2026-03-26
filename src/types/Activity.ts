@@ -1,6 +1,6 @@
 export interface ActivityProperty {
   activity_property_id: number
-  value: number
+  value: number | string
 }
 
 export interface CreateActivityPayload {

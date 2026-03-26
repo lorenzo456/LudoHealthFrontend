@@ -17,13 +17,13 @@ const error = ref(false)
 
 const isChallengeModalVisible = ref(false)
 const selectedRule = ref<Rule | null>(null)
-const propertyValues = ref<Record<number, number>>({})
+const propertyValues = ref<Record<number, number | string>>({})
 
 const handleRuleClick = (rule: Rule) => {
   if (rule.device_id === 1) {
     selectedRule.value = rule
     propertyValues.value = Object.fromEntries(
-      rule.properties.map((p) => [p.activity_property_id, 0]),
+      rule.properties.map((p) => [p.activity_property_id, p.unit === 'text' ? '' : 0]),
     )
     isChallengeModalVisible.value = true
   }
@@ -111,8 +111,14 @@ onMounted(async () => {
           :key="prop.activity_property_id"
           :label="prop.name"
         >
-          <el-input-number
+          <el-input
+            v-if="prop.unit === 'text'"
             v-model="propertyValues[prop.activity_property_id]"
+            style="width: 100%"
+          />
+          <el-input-number
+            v-else
+            v-model="(propertyValues[prop.activity_property_id] as number)"
             :min="0"
             style="width: 100%"
           />
