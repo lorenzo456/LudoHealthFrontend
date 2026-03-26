@@ -1,11 +1,19 @@
 <script setup lang="ts">
 import Navbar from '@/components/Navbar.vue'
+import { getPlayer } from '@/api/Player'
+import type { Player } from '@/types/Player'
+import { ref, onMounted } from 'vue'
 
-const player = {
-  name: 'Alice Johnson',
-  points: 320,
-  avatar: 'https://i.pravatar.cc/150?img=47',
-}
+const player = ref<Player | null>(null)
+const points = 320 // mocked
+
+onMounted(async () => {
+  try {
+    player.value = await getPlayer(1)
+  } catch (error) {
+    console.error('Error fetching player:', error)
+  }
+})
 </script>
 
 <template>
@@ -14,12 +22,12 @@ const player = {
     <el-main>
       <el-row justify="center" style="margin-top: 40px">
         <el-col :xs="20" :sm="14" :md="8">
-          <el-card class="profile-card">
+          <el-card v-if="player" class="profile-card">
             <div class="profile-body">
-              <el-avatar :src="player.avatar" :size="100" />
-              <h2 class="player-name">{{ player.name }}</h2>
+              <el-avatar src="https://i.pravatar.cc/150?img=47" :size="100" />
+              <h2 class="player-name">{{ player.first_name }} {{ player.last_name }}</h2>
               <div class="points-badge">
-                <span class="points-value">{{ player.points }}</span>
+                <span class="points-value">{{ points }}</span>
                 <span class="points-label">points</span>
               </div>
             </div>
