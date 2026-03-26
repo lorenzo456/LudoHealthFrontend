@@ -33,7 +33,7 @@ const submitActivity = async () => {
   if (!selectedRule.value || !selectedRule.value.properties.length) return
   try {
     await postActivity({
-      player_id: 2,
+      player_id: 1,
       device_id: selectedRule.value.device_id,
       activity_type_id: selectedRule.value.activity_type_id,
       properties: Object.entries(propertyValues.value).map(([id, value]) => ({

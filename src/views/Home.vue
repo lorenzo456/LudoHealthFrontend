@@ -11,7 +11,7 @@ const loading = ref(true)
 
 onMounted(async () => {
   try {
-    const response = await getUserActivities(2)
+    const response = await getUserActivities(1)
     activities.value = response
   } catch (error) {
     console.error('Error fetching activities:', error)
