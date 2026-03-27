@@ -7,6 +7,18 @@
       <div class="card-content">
         <h3>{{ title }}</h3>
         <p>{{ description }}</p>
+        <div class="progress-section">
+          <div class="progress-label">
+            <span>Progress</span>
+            <span>{{ completedTasks }} / {{ totalTasks }} tasks</span>
+          </div>
+          <el-progress
+            :percentage="totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0"
+            :stroke-width="8"
+            :show-text="false"
+            :color="completedTasks === totalTasks && totalTasks > 0 ? '#67c23a' : '#409eff'"
+          />
+        </div>
       </div>
     </el-card>
   </router-link>
@@ -17,6 +29,8 @@ defineProps<{
   id: number
   title?: string
   description?: string
+  completedTasks?: number
+  totalTasks?: number
 }>()
 </script>
 
@@ -45,7 +59,7 @@ defineProps<{
 .image-container img {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* ensures no distortion, crops nicely */
+  object-fit: cover;
 }
 
 .card-content {
@@ -58,8 +72,20 @@ defineProps<{
 }
 
 .card-content p {
-  margin: 0;
+  margin: 0 0 1rem 0;
   color: #555;
   font-size: 0.95rem;
+}
+
+.progress-section {
+  text-align: left;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 6px;
 }
 </style>

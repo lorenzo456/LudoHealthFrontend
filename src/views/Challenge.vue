@@ -20,6 +20,8 @@ const error = ref(false)
 
 const isModalVisible = ref(false)
 const selectedTask = ref<Task | null>(null)
+const isCongratulationsVisible = ref(false)
+const pointsEarned = ref(0)
 
 const isTaskDone = (task: Task) => (completions.value[task.id] ?? 0) >= task.frequency
 const remaining = (task: Task) => Math.max(0, task.frequency - (completions.value[task.id] ?? 0))
@@ -37,15 +39,20 @@ const handleConfirm = async () => {
     value: p.threshold_value ?? 1,
   }))
   try {
-    await postActivity({
+    const result = await postActivity({
       player_id: PLAYER_ID,
       activity_type_id: selectedTask.value.activity_type_id,
       task_id: selectedTask.value.id,
       properties,
     })
-    completions.value[selectedTask.value.id] = (completions.value[selectedTask.value.id] ?? 0) + 1
-    ElMessage.success(`Logged: ${selectedTask.value.name}`)
+    await fetchCompletions(Number(route.params.id))
     isModalVisible.value = false
+    if (result.points_awarded > 0) {
+      pointsEarned.value = result.points_awarded
+      isCongratulationsVisible.value = true
+    } else {
+      ElMessage.success(`Logged: ${selectedTask.value.name}`)
+    }
   } catch {
     ElMessage.error('Failed to log activity')
   }
@@ -83,6 +90,26 @@ onMounted(async () => {
 
 <template>
   <Navbar />
+
+  <el-dialog
+    v-model="isCongratulationsVisible"
+    title="Challenge Complete!"
+    width="420px"
+    :close-on-click-modal="false"
+    center
+  >
+    <div class="congrats-body">
+      <div class="congrats-icon">🏆</div>
+      <p class="congrats-title">Congratulations!</p>
+      <p class="congrats-message">
+        You've completed <strong>{{ challenge?.name }}</strong> and earned
+        <span class="congrats-points">{{ pointsEarned }} points</span>!
+      </p>
+    </div>
+    <template #footer>
+      <el-button type="primary" @click="isCongratulationsVisible = false">Awesome!</el-button>
+    </template>
+  </el-dialog>
 
   <el-dialog
     v-model="isModalVisible"
@@ -191,6 +218,37 @@ onMounted(async () => {
 .task-done {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.congrats-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0 16px;
+  text-align: center;
+}
+
+.congrats-icon {
+  font-size: 48px;
+}
+
+.congrats-title {
+  font-size: 22px;
+  font-weight: bold;
+  margin: 0;
+  color: #303133;
+}
+
+.congrats-message {
+  font-size: 15px;
+  color: #555;
+  margin: 0;
+}
+
+.congrats-points {
+  font-weight: bold;
+  color: #67c23a;
 }
 
 .task-header {

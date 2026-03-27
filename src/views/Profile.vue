@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import Navbar from '@/components/Navbar.vue'
-import { getPlayer, getPlayerPoints } from '@/api/Player'
+import { getPlayer } from '@/api/Player'
 import type { Player } from '@/types/Player'
 import { ref, onMounted } from 'vue'
 
 const player = ref<Player | null>(null)
-const points = ref<number>(0)
 
 onMounted(async () => {
   try {
-    [player.value, points.value] = await Promise.all([getPlayer(1), getPlayerPoints(1)])
+    player.value = await getPlayer(1)
   } catch (error) {
     console.error('Error fetching profile:', error)
   }
@@ -27,7 +26,7 @@ onMounted(async () => {
               <el-avatar src="https://i.pravatar.cc/150?img=47" :size="100" />
               <h2 class="player-name">{{ player.first_name }} {{ player.last_name }}</h2>
               <div class="points-badge">
-                <span class="points-value">{{ points.toFixed(0) }}</span>
+                <span class="points-value">{{ player.score.toFixed(0) }}</span>
                 <span class="points-label">points</span>
               </div>
             </div>

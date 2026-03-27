@@ -10,13 +10,3 @@ export const getPlayer = async (playerId: number): Promise<Player> => {
     throw error
   }
 }
-
-export const getPlayerPoints = async (playerId: number): Promise<number> => {
-  try {
-    const response = await apiClient.get(`/players/${playerId}/points`)
-    return response.data.total_points as number
-  } catch (error) {
-    console.error(`Error fetching points for player ${playerId}:`, error)
-    throw error
-  }
-}

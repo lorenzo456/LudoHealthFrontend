@@ -11,9 +11,10 @@ export const getUserActivities = async (userId: number): Promise<Activity[]> => 
   }
 }
 
-export const postActivity = async (payload: CreateActivityPayload): Promise<void> => {
+export const postActivity = async (payload: CreateActivityPayload): Promise<{ points_awarded: number }> => {
   try {
-    await apiClient.post('/activities', payload)
+    const response = await apiClient.post('/activities', payload)
+    return response.data
   } catch (error) {
     console.error('Error posting activity:', error)
     throw error

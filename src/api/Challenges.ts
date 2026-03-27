@@ -42,6 +42,18 @@ export const getTaskProperties = async (taskId: number): Promise<TaskProperty[]>
   }
 }
 
+export const getChallengeProgress = async (
+  playerId: number,
+): Promise<{ challenge_id: number; total_tasks: number; completed_tasks: number }[]> => {
+  try {
+    const response = await apiClient.get(`/players/${playerId}/challenge-progress`)
+    return response.data
+  } catch (error) {
+    console.error(`Error fetching challenge progress for player ${playerId}:`, error)
+    throw error
+  }
+}
+
 export const getTaskCompletions = async (
   challengeId: number,
   playerId: number,
