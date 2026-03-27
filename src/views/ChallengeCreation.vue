@@ -4,8 +4,10 @@ import { reactive, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import apiClient from '@/api/apiclient'
 import { ElMessage } from 'element-plus'
+import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
+const playerId = useAuthStore().player!.id
 const submitting = ref(false)
 const categories = ['Physical', 'Cognitive', 'Social']
 const operators = ['>=', '>', '<=', '<', '=']
@@ -84,7 +86,7 @@ const handleSubmit = async () => {
   submitting.value = true
   try {
     await apiClient.post('/challenges', {
-      player_id: 1,
+      player_id: playerId,
       ...form,
       tasks: tasks.value.map((t) => ({
         name: t.name,

@@ -8,7 +8,8 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { postActivity } from '@/api/Activities'
 
-const PLAYER_ID = 1
+import { useAuthStore } from '@/stores/auth'
+const PLAYER_ID = useAuthStore().player!.id
 
 const route = useRoute()
 

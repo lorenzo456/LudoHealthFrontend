@@ -9,9 +9,13 @@
         <el-menu mode="horizontal" router :default-active="$route.path">
           <el-menu-item index="/">Home</el-menu-item>
           <el-menu-item index="/challenges">Challenges</el-menu-item>
-          <el-menu-item index="/challenges/create">Create Challenge</el-menu-item>
+          <el-menu-item v-if="isAdmin" index="/challenges/create">Create Challenge</el-menu-item>
           <el-menu-item index="/profile">Profile</el-menu-item>
         </el-menu>
+      </el-col>
+
+      <el-col v-if="!isMobile" :md="4" :sm="4" style="display: flex; justify-content: flex-end; align-items: center">
+        <el-button text @click="handleLogout">Logout</el-button>
       </el-col>
 
       <el-col v-if="isMobile" :xs="8" class="hamburger">
@@ -23,18 +27,31 @@
       <el-menu mode="vertical" router :default-active="$route.path" @select="drawer = false">
         <el-menu-item index="/">Home</el-menu-item>
         <el-menu-item index="/challenges">Challenges</el-menu-item>
-        <el-menu-item index="/challenges/create">Create Challenge</el-menu-item>
+        <el-menu-item v-if="isAdmin" index="/challenges/create">Create Challenge</el-menu-item>
         <el-menu-item index="/profile">Profile</el-menu-item>
       </el-menu>
+      <div style="padding: 16px">
+        <el-button style="width: 100%" @click="handleLogout">Logout</el-button>
+      </div>
     </el-drawer>
   </el-header>
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+import { useRouter } from 'vue-router'
 
 const drawer = ref(false)
 const isMobile = ref(false)
+const auth = useAuthStore()
+const isAdmin = auth.player?.role === 'admin'
+const router = useRouter()
+
+const handleLogout = () => {
+  auth.logout()
+  router.push('/login')
+}
 
 const checkScreen = () => {
   isMobile.value = window.innerWidth < 768

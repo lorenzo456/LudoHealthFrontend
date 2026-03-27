@@ -3,12 +3,14 @@ import Navbar from '@/components/Navbar.vue'
 import { getPlayer } from '@/api/Player'
 import type { Player } from '@/types/Player'
 import { ref, onMounted } from 'vue'
+import { useAuthStore } from '@/stores/auth'
 
+const playerId = useAuthStore().player!.id
 const player = ref<Player | null>(null)
 
 onMounted(async () => {
   try {
-    player.value = await getPlayer(1)
+    player.value = await getPlayer(playerId)
   } catch (error) {
     console.error('Error fetching profile:', error)
   }

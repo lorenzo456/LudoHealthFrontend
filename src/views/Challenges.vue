@@ -4,6 +4,9 @@ import Navbar from '@/components/Navbar.vue'
 import { getPlayerChallenges, getChallengeProgress } from '@/api/Challenges'
 import type { Challenge } from '@/types/Challenge'
 import { ref, onMounted } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+
+const playerId = useAuthStore().player!.id
 
 const challenges = ref<Challenge[]>([])
 const progress = ref<Record<number, { completed: number; total: number }>>({})
@@ -12,8 +15,8 @@ const loading = ref(true)
 onMounted(async () => {
   try {
     const [fetchedChallenges, fetchedProgress] = await Promise.all([
-      getPlayerChallenges(1),
-      getChallengeProgress(1),
+      getPlayerChallenges(playerId),
+      getChallengeProgress(playerId),
     ])
     challenges.value = fetchedChallenges
     progress.value = Object.fromEntries(

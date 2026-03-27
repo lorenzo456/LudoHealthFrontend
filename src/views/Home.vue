@@ -1,17 +1,18 @@
 <script setup lang="ts">
-import { el } from 'element-plus/es/locales.mjs'
 import Navbar from '@/components/Navbar.vue'
 import ActivityCard from '@/components/ActivityCard.vue'
 import { Activity } from '@/types/Activity'
 import { ref, onMounted } from 'vue'
 import { getUserActivities } from '@/api/Activities'
+import { useAuthStore } from '@/stores/auth'
 
+const playerId = useAuthStore().player!.id
 const activities = ref<Activity[]>([])
 const loading = ref(true)
 
 onMounted(async () => {
   try {
-    const response = await getUserActivities(1)
+    const response = await getUserActivities(playerId)
     activities.value = response
   } catch (error) {
     console.error('Error fetching activities:', error)

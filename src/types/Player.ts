@@ -4,5 +4,6 @@ export interface Player {
   last_name: string
   email: string
   score: number
+  role: 'user' | 'admin'
   created_at: string
 }
