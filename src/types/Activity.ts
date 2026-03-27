@@ -5,9 +5,8 @@ export interface ActivityProperty {
 
 export interface CreateActivityPayload {
   player_id: number
-  device_id: number
   activity_type_id: number
-  rule_id: number
+  task_id?: number
   properties: ActivityProperty[]
 }
 

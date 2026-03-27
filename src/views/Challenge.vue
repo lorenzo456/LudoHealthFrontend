@@ -1,65 +1,67 @@
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
 import Navbar from '@/components/Navbar.vue'
-import { getChallengeById, getChallengeRules, getRuleProperties } from '@/api/Challenges'
+import { getChallengeById, getChallengeTasks, getTaskProperties, getTaskCompletions } from '@/api/Challenges'
 import type { Challenge } from '@/types/Challenge'
+import type { Task } from '@/types/Task'
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { Rule } from '@/types/Rule'
 import { postActivity } from '@/api/Activities'
+
+const PLAYER_ID = 1
 
 const route = useRoute()
 
 const challenge = ref<Challenge | null>(null)
-const rules = ref<Rule[] | null>(null)
+const tasks = ref<Task[]>([])
+const completions = ref<Record<number, number>>({})
 const loading = ref(true)
 const error = ref(false)
 
-const isChallengeModalVisible = ref(false)
-const selectedRule = ref<Rule | null>(null)
-const step = ref<'confirm' | 'log'>('confirm')
+const isModalVisible = ref(false)
+const selectedTask = ref<Task | null>(null)
 
-const handleRuleClick = (rule: Rule) => {
-  if (rule.device_id === 1) {
-    selectedRule.value = rule
-    step.value = 'confirm'
-    isChallengeModalVisible.value = true
-  }
+const isTaskDone = (task: Task) => (completions.value[task.id] ?? 0) >= task.frequency
+const remaining = (task: Task) => Math.max(0, task.frequency - (completions.value[task.id] ?? 0))
+
+const handleTaskClick = (task: Task) => {
+  if (isTaskDone(task)) return
+  selectedTask.value = task
+  isModalVisible.value = true
 }
 
 const handleConfirm = async () => {
-  if (!selectedRule.value) return
-  const properties = selectedRule.value.properties.map((p) => ({
+  if (!selectedTask.value) return
+  const properties = selectedTask.value.properties.map((p) => ({
     activity_property_id: p.activity_property_id,
-    value: p.unit === 'text' ? 'logged' : (p.threshold_value ?? 0) + 1,
+    value: p.threshold_value ?? 1,
   }))
   try {
     await postActivity({
-      player_id: 1,
-      device_id: selectedRule.value.device_id,
-      activity_type_id: selectedRule.value.activity_type_id,
-      rule_id: selectedRule.value.id,
+      player_id: PLAYER_ID,
+      activity_type_id: selectedTask.value.activity_type_id,
+      task_id: selectedTask.value.id,
       properties,
     })
-    ElMessage.success(`Activity logged for: ${selectedRule.value.name}`)
-    isChallengeModalVisible.value = false
+    completions.value[selectedTask.value.id] = (completions.value[selectedTask.value.id] ?? 0) + 1
+    ElMessage.success(`Logged: ${selectedTask.value.name}`)
+    isModalVisible.value = false
   } catch {
     ElMessage.error('Failed to log activity')
   }
 }
 
+const fetchCompletions = async (challengeId: number) => {
+  const rows = await getTaskCompletions(challengeId, PLAYER_ID)
+  completions.value = Object.fromEntries(rows.map((r) => [r.task_id, r.completions_today]))
+}
 
 onMounted(async () => {
   const challengeId = Number(route.params.id)
 
-  console.log('Fetching challenge with ID:', challengeId)
-
   try {
-    const response: Challenge = await getChallengeById(challengeId)
-    challenge.value = response
-    console.log('Fetched challenge:', challenge.value)
-  } catch (err) {
-    console.error('Error fetching challenge:', err)
+    challenge.value = await getChallengeById(challengeId)
+  } catch {
     error.value = true
     ElMessage.error('Failed to load challenge')
   } finally {
@@ -67,24 +69,14 @@ onMounted(async () => {
   }
 
   try {
-    const rulesResponse: Rule[] = await getChallengeRules(challengeId)
-    console.log('Fetched rules response:', rulesResponse)
-    rules.value = rulesResponse
-  } catch (err) {
-    console.error('Error fetching rules:', err)
-    error.value = true
-    ElMessage.error('Failed to load challenge rules')
-  } finally {
-    loading.value = false
-  }
-
-  try {
-    for (const rule of rules.value || []) {
-      const properties: Property[] = await getRuleProperties(rule.id)
-      rule.properties = properties
+    const fetchedTasks = await getChallengeTasks(challengeId)
+    for (const task of fetchedTasks) {
+      task.properties = await getTaskProperties(task.id)
     }
-  } catch (err) {
-    console.error('Error logging rule properties:', err)
+    tasks.value = fetchedTasks
+    await fetchCompletions(challengeId)
+  } catch {
+    ElMessage.error('Failed to load tasks')
   }
 })
 </script>
@@ -92,25 +84,21 @@ onMounted(async () => {
 <template>
   <Navbar />
 
-  <!-- Challenge Modal -->
   <el-dialog
-    v-model="isChallengeModalVisible"
-    :title="selectedRule?.name || 'Rule Details'"
+    v-model="isModalVisible"
+    :title="selectedTask?.name"
     width="500px"
     :close-on-click-modal="false"
     :destroy-on-close="true"
     center
   >
-    <div v-if="selectedRule">
-      <p>Do you want to log <strong>{{ selectedRule.name }}</strong>?</p>
-      <p style="color: #888; font-size: 13px">{{ selectedRule.description }}</p>
+    <div v-if="selectedTask">
+      <p>Do you want to log <strong>{{ selectedTask.name }}</strong>?</p>
+      <p style="color: #888; font-size: 13px">{{ selectedTask.description }}</p>
     </div>
-
-    <template v-slot:footer v-if="selectedRule">
-      <span class="dialog-footer">
-        <el-button @click="isChallengeModalVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="handleConfirm">Log activity</el-button>
-      </span>
+    <template #footer>
+      <el-button @click="isModalVisible = false">Cancel</el-button>
+      <el-button type="primary" @click="handleConfirm">Log activity</el-button>
     </template>
   </el-dialog>
 
@@ -118,100 +106,57 @@ onMounted(async () => {
     <el-main>
       <el-row>
         <el-col :span="2" />
-
         <el-col :span="20">
-          <!-- Loading State -->
+
           <el-card v-if="loading" class="challenge-card">
             <el-skeleton :rows="8" animated />
           </el-card>
 
-          <!-- Error State -->
           <el-card v-else-if="error" class="challenge-card">
             <el-empty description="Failed to load challenge">
-              <el-button type="primary" @click="$router.push('/')"> Go Back Home </el-button>
+              <el-button type="primary" @click="$router.push('/')">Go Back</el-button>
             </el-empty>
           </el-card>
 
-          <!-- Content State -->
           <el-card v-else-if="challenge" class="challenge-card">
             <h1 class="title">{{ challenge.name }}</h1>
-
             <div class="meta">
-              <span class="date">{{ challenge.end_date }}</span>
-              <!-- <el-tag type="info">Physical</el-tag> -->
-              <!-- <span class="point">+50 points</span> -->
+              <el-tag type="info">{{ challenge.category }}</el-tag>
+              <span class="date">ends {{ challenge.end_date }}</span>
             </div>
-
-            <!-- Description -->
-            <p class="description">
-              {{ challenge.description }}
-            </p>
 
             <el-divider />
 
-            <!-- rules -->
-            <div class="rules-section" v-if="rules && rules.length" style="margin-bottom: 20px">
-              <h3>Activities</h3>
+            <div v-if="tasks.length">
+              <h3>Tasks</h3>
               <el-row :gutter="16">
-                <el-col v-for="rule in rules" :key="rule.id" :span="24" style="margin-bottom: 10px">
-                  <div
-                    :style="{
-                      border: rule.device_id == 1 ? '1px solid rebeccapurple' : 'none',
-                      cursor: rule.device_id == 1 ? 'pointer' : 'default',
-                      pointerEvents: rule.device_id == 1 ? 'auto' : 'none',
-                    }"
-                    @click="handleRuleClick(rule)"
+                <el-col v-for="task in tasks" :key="task.id" :span="24" style="margin-bottom: 10px">
+                  <el-card
+                    shadow="hover"
+                    class="task-card"
+                    :class="{ 'task-done': isTaskDone(task) }"
+                    @click="handleTaskClick(task)"
                   >
-                    <el-card shadow="hover">
-                      <div>
-                        <strong>{{ rule.name }}</strong>
-                      </div>
-                      <div>
-                        <el-tag type="info">{{ rule.category }}</el-tag>
-                      </div>
-                      <div>{{ rule.description }}</div>
-                      <div>Frequency: {{ rule.max_frequency }}</div>
-                      <div style="margin-top: 5px; font-weight: 500">
-                        Points: <span class="point">{{ rule.points }}</span>
-                      </div>
-                    </el-card>
-                  </div>
+                    <div class="task-header">
+                      <strong>{{ task.name }}</strong>
+                      <el-tag :type="isTaskDone(task) ? 'success' : 'info'" size="small">
+                        {{ isTaskDone(task) ? 'Done' : `${remaining(task)} left` }}
+                      </el-tag>
+                    </div>
+                    <p class="task-description">{{ task.description }}</p>
+                  </el-card>
                 </el-col>
               </el-row>
             </div>
 
-            <!-- Progress
-            <div class="progress-section">
-              <el-progress :percentage="progress" :stroke-width="18" />
-              <p class="description">12/20 minutes completed</p>
-            </div> -->
-
-            <!-- <el-divider /> -->
-
-            <!-- Submission Section -->
-            <!-- <div class="submission-section">
-              <h3>Manually submit Your Completion</h3>
-
-              <el-input
-                v-model="reflection"
-                type="textarea"
-                placeholder="Describe how you completed this challenge..."
-                :rows="4"
-                resize="none"
-              />
-
-              <el-button type="primary" class="submit-btn" @click="submitChallenge">
-                Submit Challenge
-              </el-button>
-            </div> -->
+            <el-empty v-else description="No tasks for this challenge" />
           </el-card>
 
-          <!-- Fallback (shouldn't happen) -->
           <el-card v-else class="challenge-card">
             <el-empty description="Challenge not found" />
           </el-card>
-        </el-col>
 
+        </el-col>
         <el-col :span="2" />
       </el-row>
     </el-main>
@@ -235,29 +180,29 @@ onMounted(async () => {
   margin-bottom: 15px;
 }
 
-.point {
-  font-weight: bold;
-  color: #67c23a;
-}
-
 .date {
   color: #999;
 }
 
-.description {
-  margin-bottom: 20px;
-  line-height: 1.6;
+.task-card {
+  cursor: pointer;
 }
 
-.progress-section {
-  margin-bottom: 20px;
+.task-done {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
-.submission-section {
-  margin-top: 20px;
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
 }
 
-.submit-btn {
-  margin-top: 15px;
+.task-description {
+  margin: 0;
+  color: #666;
+  font-size: 13px;
 }
 </style>

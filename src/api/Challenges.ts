@@ -1,13 +1,13 @@
-import type { Property, Rule } from '@/types/Rule'
 import apiClient from './apiclient'
-import { type Challenge } from '@/types/Challenge'
+import type { Challenge } from '@/types/Challenge'
+import type { Task, TaskProperty } from '@/types/Task'
 
-export const getChallenges = async (): Promise<Challenge[]> => {
+export const getPlayerChallenges = async (playerId: number): Promise<Challenge[]> => {
   try {
-    const response = await apiClient.get('/challenges')
+    const response = await apiClient.get(`/players/${playerId}/challenges`)
     return response.data as Challenge[]
   } catch (error) {
-    console.error('Error fetching challenges:', error)
+    console.error(`Error fetching challenges for player ${playerId}:`, error)
     throw error
   }
 }
@@ -17,37 +17,42 @@ export const getChallengeById = async (id: number): Promise<Challenge> => {
     const response = await apiClient.get(`/challenges/${id}`)
     return response.data as Challenge
   } catch (error) {
-    console.error(`Error fetching challenge with id ${id}:`, error)
+    console.error(`Error fetching challenge ${id}:`, error)
     throw error
   }
 }
 
-export const getChallengeRules = async (id: number): Promise<Rule> => {
+export const getChallengeTasks = async (challengeId: number): Promise<Task[]> => {
   try {
-    const response = await apiClient.get(`/challenges/${id}/rules`)
-    return response.data as Rule
+    const response = await apiClient.get(`/challenges/${challengeId}/tasks`)
+    return response.data as Task[]
   } catch (error) {
-    console.error(`Error fetching rules for challenge with id ${id}:`, error)
+    console.error(`Error fetching tasks for challenge ${challengeId}:`, error)
     throw error
   }
 }
 
-export const getRuleProperties = async (id: number): Promise<Property[]> => {
+export const getTaskProperties = async (taskId: number): Promise<TaskProperty[]> => {
   try {
-    const response = await apiClient.get(`/rules/${id}/properties`)
-    return response.data as Property[]
+    const response = await apiClient.get(`/tasks/${taskId}/properties`)
+    return response.data as TaskProperty[]
   } catch (error) {
-    console.error(`Error fetching properties for rule with id ${id}:`, error)
+    console.error(`Error fetching properties for task ${taskId}:`, error)
     throw error
   }
 }
 
-export const getActiveChallengesFromPlayer = async (id: number): Promise<Challenge[]> => {
+export const getTaskCompletions = async (
+  challengeId: number,
+  playerId: number,
+): Promise<{ task_id: number; completions_today: number }[]> => {
   try {
-    const response = await apiClient.get(`/challenges/${id}/active`)
-    return response.data as Challenge[]
+    const response = await apiClient.get(`/challenges/${challengeId}/completions`, {
+      params: { player_id: playerId },
+    })
+    return response.data
   } catch (error) {
-    console.error(`Error fetching active challenges for player with id ${id}:`, error)
+    console.error(`Error fetching completions for challenge ${challengeId}:`, error)
     throw error
   }
 }
