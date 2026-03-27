@@ -17,35 +17,37 @@ const error = ref(false)
 
 const isChallengeModalVisible = ref(false)
 const selectedRule = ref<Rule | null>(null)
-const propertyValues = ref<Record<number, number | string>>({})
+const step = ref<'confirm' | 'log'>('confirm')
 
 const handleRuleClick = (rule: Rule) => {
   if (rule.device_id === 1) {
     selectedRule.value = rule
-    propertyValues.value = Object.fromEntries(
-      rule.properties.map((p) => [p.activity_property_id, p.unit === 'text' ? '' : 0]),
-    )
+    step.value = 'confirm'
     isChallengeModalVisible.value = true
   }
 }
 
-const submitActivity = async () => {
-  if (!selectedRule.value || !selectedRule.value.properties.length) return
+const handleConfirm = async () => {
+  if (!selectedRule.value) return
+  const properties = selectedRule.value.properties.map((p) => ({
+    activity_property_id: p.activity_property_id,
+    value: p.unit === 'text' ? 'logged' : (p.threshold_value ?? 0) + 1,
+  }))
   try {
     await postActivity({
       player_id: 1,
       device_id: selectedRule.value.device_id,
       activity_type_id: selectedRule.value.activity_type_id,
-      properties: Object.entries(propertyValues.value).map(([id, value]) => ({
-        activity_property_id: Number(id),
-        value,
-      })),
+      rule_id: selectedRule.value.id,
+      properties,
     })
-    ElMessage.success(`Activity submitted for: ${selectedRule.value.name}`)
+    ElMessage.success(`Activity logged for: ${selectedRule.value.name}`)
+    isChallengeModalVisible.value = false
   } catch {
-    ElMessage.error('Failed to submit activity')
+    ElMessage.error('Failed to log activity')
   }
 }
+
 
 onMounted(async () => {
   const challengeId = Number(route.params.id)
@@ -100,37 +102,14 @@ onMounted(async () => {
     center
   >
     <div v-if="selectedRule">
-      <p>
-        <strong>
-          Manually registering <em>{{ selectedRule.name }}</em> activity
-        </strong>
-      </p>
-      <el-form label-position="top" style="margin-top: 12px">
-        <el-form-item
-          v-for="prop in selectedRule.properties"
-          :key="prop.activity_property_id"
-          :label="prop.name"
-        >
-          <el-input
-            v-if="prop.unit === 'text'"
-            v-model="propertyValues[prop.activity_property_id]"
-            style="width: 100%"
-          />
-          <el-input-number
-            v-else
-            v-model="(propertyValues[prop.activity_property_id] as number)"
-            :min="0"
-            style="width: 100%"
-          />
-        </el-form-item>
-      </el-form>
+      <p>Do you want to log <strong>{{ selectedRule.name }}</strong>?</p>
+      <p style="color: #888; font-size: 13px">{{ selectedRule.description }}</p>
     </div>
+
     <template v-slot:footer v-if="selectedRule">
       <span class="dialog-footer">
         <el-button @click="isChallengeModalVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="(submitActivity(), (isChallengeModalVisible = false))">
-          Submit activity manually
-        </el-button>
+        <el-button type="primary" @click="handleConfirm">Log activity</el-button>
       </span>
     </template>
   </el-dialog>

@@ -16,4 +16,6 @@ export interface Property {
   activity_property_id: number
   name: string
   unit: string
+  threshold_value: number | null
+  logical_operator: string | null
 }
