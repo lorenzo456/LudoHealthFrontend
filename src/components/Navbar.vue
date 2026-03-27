@@ -9,6 +9,7 @@
         <el-menu mode="horizontal" router :default-active="$route.path">
           <el-menu-item index="/">Home</el-menu-item>
           <el-menu-item index="/challenges">Challenges</el-menu-item>
+          <el-menu-item index="/challenges/create">Create Challenge</el-menu-item>
           <el-menu-item index="/profile">Profile</el-menu-item>
         </el-menu>
       </el-col>
@@ -22,6 +23,7 @@
       <el-menu mode="vertical" router :default-active="$route.path" @select="drawer = false">
         <el-menu-item index="/">Home</el-menu-item>
         <el-menu-item index="/challenges">Challenges</el-menu-item>
+        <el-menu-item index="/challenges/create">Create Challenge</el-menu-item>
         <el-menu-item index="/profile">Profile</el-menu-item>
       </el-menu>
     </el-drawer>
