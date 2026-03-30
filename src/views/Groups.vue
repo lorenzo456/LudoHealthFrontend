@@ -72,6 +72,7 @@ const handleJoin = async (group: Group) => {
             </div>
             <div class="group-info">
               <h3>{{ group.name }}</h3>
+              <p v-if="group.description" class="group-description">{{ group.description }}</p>
             </div>
             <div class="group-action">
               <el-tag v-if="isMember(group.id)" type="success">Joined</el-tag>
@@ -147,7 +148,13 @@ const handleJoin = async (group: Group) => {
 }
 
 .group-info h3 {
+  margin: 0 0 4px 0;
+}
+
+.group-description {
   margin: 0;
+  font-size: 13px;
+  color: #888;
 }
 
 .group-action {

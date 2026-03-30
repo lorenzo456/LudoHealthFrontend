@@ -6,4 +6,5 @@ export interface Challenge {
   start_date: string
   end_date: string
   points: number
+  level?: number
 }
