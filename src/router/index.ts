@@ -8,6 +8,7 @@ import Profile from '@/views/Profile.vue'
 import ChallengeCreation from '@/views/ChallengeCreation.vue'
 import Login from '@/views/Login.vue'
 import Register from '@/views/Register.vue'
+import Groups from '@/views/Groups.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -32,6 +33,11 @@ const router = createRouter({
       name: 'challenge-creation',
       component: ChallengeCreation,
       meta: { requiresAdmin: true },
+    },
+    {
+      path: '/groups',
+      name: 'groups',
+      component: Groups,
     },
     {
       path: '/profile',
