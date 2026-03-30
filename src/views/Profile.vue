@@ -34,6 +34,9 @@ const categoryColor = (category: string) => {
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+
+const settingsVisible = ref(false)
+const googleFitConnected = ref(false)
 </script>
 
 <template>
@@ -46,6 +49,9 @@ const formatDate = (iso: string) =>
         <el-row justify="center">
           <el-col :xs="22" :sm="16" :md="10" :lg="8">
             <el-card class="profile-card">
+              <div class="settings-btn">
+                <el-button text circle size="large" style="font-size: 22px" @click="settingsVisible = true">⚙️</el-button>
+              </div>
               <div class="profile-body">
                 <el-avatar src="https://i.pravatar.cc/150?img=47" :size="100" />
                 <h2 class="player-name">{{ player.first_name }} {{ player.last_name }}</h2>
@@ -105,6 +111,36 @@ const formatDate = (iso: string) =>
       </div>
     </el-main>
   </el-container>
+
+  <el-drawer v-model="settingsVisible" title="Settings" direction="rtl" size="320px">
+    <div class="settings-section">
+      <h4 class="settings-heading">Account Integrations</h4>
+      <div class="integration-row">
+        <div class="integration-info">
+          <svg class="integration-logo" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+              <path d="M24 4C12.95 4 4 12.95 4 24s8.95 20 20 20 20-8.95 20-20S35.05 4 24 4z" fill="#EA4335"/>
+              <path d="M24 4C12.95 4 4 12.95 4 24h20V4z" fill="#4285F4"/>
+              <path d="M4 24c0 11.05 8.95 20 20 20V24H4z" fill="#34A853"/>
+              <path d="M24 24h20C44 12.95 35.05 4 24 4v20z" fill="#FBBC05"/>
+              <path d="M24 16c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8z" fill="#fff"/>
+              <path d="M24 20c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z" fill="#EA4335"/>
+            </svg>
+          <div>
+            <div class="integration-name">Google Fit</div>
+            <div class="integration-status">{{ googleFitConnected ? 'Connected' : 'Not connected' }}</div>
+          </div>
+        </div>
+        <el-button
+          :type="googleFitConnected ? 'danger' : 'primary'"
+          size="small"
+          plain
+          @click="googleFitConnected = !googleFitConnected"
+        >
+          {{ googleFitConnected ? 'Disconnect' : 'Connect' }}
+        </el-button>
+      </div>
+    </div>
+  </el-drawer>
 </template>
 
 <style scoped>
@@ -114,6 +150,55 @@ const formatDate = (iso: string) =>
 
 .profile-card {
   padding: 24px 16px;
+  position: relative;
+}
+
+.settings-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+.settings-section {
+  padding: 8px 0;
+}
+
+.settings-heading {
+  margin: 0 0 16px 0;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #909399;
+}
+
+.integration-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.integration-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.integration-logo {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+
+.integration-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.integration-status {
+  font-size: 12px;
+  color: #909399;
 }
 
 .profile-body {
