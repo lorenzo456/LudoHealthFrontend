@@ -20,3 +20,11 @@ export const getGroupChallenges = async (groupId: number): Promise<Challenge[]> 
   const response = await apiClient.get(`/groups/${groupId}/challenges`)
   return response.data as Challenge[]
 }
+
+export const getGroupProgress = async (
+  groupId: number,
+  playerId: number,
+): Promise<{ challenge_id: number; total_tasks: number; completed_tasks: number }[]> => {
+  const response = await apiClient.get(`/groups/${groupId}/progress`, { params: { player_id: playerId } })
+  return response.data
+}

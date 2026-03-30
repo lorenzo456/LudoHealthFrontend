@@ -54,6 +54,13 @@ export const getChallengeProgress = async (
   }
 }
 
+export const getCompletedChallenges = async (
+  playerId: number,
+): Promise<{ challenge_id: number; name: string; category: string; points: number; total_tasks: number; completed_at: string }[]> => {
+  const response = await apiClient.get(`/players/${playerId}/completed-challenges`)
+  return response.data
+}
+
 export const getTaskCompletions = async (
   challengeId: number,
   playerId: number,

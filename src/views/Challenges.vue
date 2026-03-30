@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import Card from '@/components/Card.vue'
 import Navbar from '@/components/Navbar.vue'
-import { getChallengeProgress } from '@/api/Challenges'
-import { getPlayerGroups, getGroupChallenges } from '@/api/Groups'
+import { getPlayerGroups, getGroupChallenges, getGroupProgress } from '@/api/Groups'
 import type { Group } from '@/types/Group'
 import type { Challenge } from '@/types/Challenge'
 import { ref, onMounted, computed } from 'vue'
@@ -19,14 +18,7 @@ const loadingChallenges = ref(false)
 
 onMounted(async () => {
   try {
-    const [fetchedGroups, fetchedProgress] = await Promise.all([
-      getPlayerGroups(playerId),
-      getChallengeProgress(playerId),
-    ])
-    groups.value = fetchedGroups
-    progress.value = Object.fromEntries(
-      fetchedProgress.map((p) => [p.challenge_id, { completed: p.completed_tasks, total: p.total_tasks }])
-    )
+    groups.value = await getPlayerGroups(playerId)
   } catch (error) {
     console.error('Error fetching groups:', error)
   } finally {
@@ -38,7 +30,14 @@ const selectGroup = async (group: Group) => {
   selectedGroup.value = group
   loadingChallenges.value = true
   try {
-    challenges.value = await getGroupChallenges(group.id)
+    const [fetchedChallenges, fetchedProgress] = await Promise.all([
+      getGroupChallenges(group.id),
+      getGroupProgress(group.id, playerId),
+    ])
+    challenges.value = fetchedChallenges
+    progress.value = Object.fromEntries(
+      fetchedProgress.map((p) => [p.challenge_id, { completed: p.completed_tasks, total: p.total_tasks }])
+    )
   } catch (error) {
     console.error('Error fetching group challenges:', error)
   } finally {
