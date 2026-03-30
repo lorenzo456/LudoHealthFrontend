@@ -5,7 +5,10 @@
         <img src="https://picsum.photos/400/200" alt="Sample Image" />
       </div>
       <div class="card-content">
-        <h3>{{ title }}</h3>
+        <div class="card-title-row">
+          <h3>{{ title }}</h3>
+          <span v-if="points !== undefined" class="points-badge">{{ points }} pts</span>
+        </div>
         <p>{{ description }}</p>
         <div class="progress-section">
           <div class="progress-label">
@@ -31,6 +34,7 @@ defineProps<{
   description?: string
   completedTasks?: number
   totalTasks?: number
+  points?: number
 }>()
 </script>
 
@@ -67,8 +71,26 @@ defineProps<{
   text-align: center;
 }
 
-.card-content h3 {
-  margin: 0 0 0.5rem 0;
+.card-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.card-title-row h3 {
+  margin: 0;
+}
+
+.points-badge {
+  font-size: 12px;
+  font-weight: 600;
+  color: #67c23a;
+  background: #f0f9eb;
+  border: 1px solid #b3e19d;
+  border-radius: 20px;
+  padding: 2px 10px;
+  white-space: nowrap;
 }
 
 .card-content p {

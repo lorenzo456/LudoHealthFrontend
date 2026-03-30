@@ -158,6 +158,7 @@ const isLevelUnlocked = (level: number) => {
                       :description="challenge.category"
                       :completed-tasks="progress[challenge.id]?.completed ?? 0"
                       :total-tasks="progress[challenge.id]?.total ?? 0"
+                      :points="challenge.points"
                     />
                     <div v-if="!isLevelUnlocked(level)" class="lock-overlay">
                       <span class="lock-icon">🔒</span>

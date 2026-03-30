@@ -12,6 +12,29 @@ export const getPublicGroups = async (): Promise<Group[]> => {
   return response.data as Group[]
 }
 
+export const getAllGroups = async (): Promise<Group[]> => {
+  const response = await apiClient.get('/admin/groups')
+  return response.data as Group[]
+}
+
+export const updateGroup = async (
+  groupId: number,
+  data: Partial<Pick<Group, 'name' | 'description' | 'is_public'>>,
+): Promise<Group> => {
+  const response = await apiClient.patch(`/groups/${groupId}`, data)
+  return response.data as Group
+}
+
+export const createGroup = async (data: {
+  name: string
+  description: string
+  is_public: boolean
+  created_by: number
+}): Promise<Group> => {
+  const response = await apiClient.post('/groups', data)
+  return response.data as Group
+}
+
 export const joinGroup = async (groupId: number, playerId: number): Promise<void> => {
   await apiClient.post(`/groups/${groupId}/players`, { player_id: playerId })
 }
