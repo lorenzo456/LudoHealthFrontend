@@ -1,6 +1,6 @@
 export interface Challenge {
   id: number
-  player_id: number
+  created_by: number
   name: string
   category: string
   start_date: string

@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(C:/Development/LudoHealth/LudoHealthBackend/.venv/Scripts/pip freeze:*)"
+    ]
+  }
+}
