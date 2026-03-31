@@ -61,10 +61,17 @@ export const getCompletedChallenges = async (
   return response.data
 }
 
+export const evaluateActivities = async (
+  playerId: number,
+): Promise<{ linked: { activity_id: number; task_id: number }[]; points_awarded: number }> => {
+  const response = await apiClient.post(`/players/${playerId}/evaluate`)
+  return response.data
+}
+
 export const getTaskCompletions = async (
   challengeId: number,
   playerId: number,
-): Promise<{ task_id: number; completions_today: number }[]> => {
+): Promise<{ task_id: number; completions: number }[]> => {
   try {
     const response = await apiClient.get(`/challenges/${challengeId}/completions`, {
       params: { player_id: playerId },

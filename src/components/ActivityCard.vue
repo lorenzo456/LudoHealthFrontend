@@ -13,10 +13,32 @@ defineProps<{
 
     <!-- Content -->
     <div class="activity-content">
-      <!-- Header: User + Date -->
+      <!-- Header: User + Date + Source -->
       <div class="activity-header">
         <span class="user-name">Alice</span>
-        <span class="activity-date">{{ activity.created_at }}</span>
+        <div class="header-right">
+          <span class="activity-date">{{ activity.created_at }}</span>
+          <el-tooltip :content="activity.source === 'google_fit' ? 'Google Fit' : 'LudoHealth'" placement="top">
+            <span class="source-badge">
+              <!-- Google Fit -->
+              <svg v-if="activity.source === 'google_fit'" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" class="source-icon">
+                <defs>
+                  <linearGradient id="gf-grad-card" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#4285F4"/>
+                    <stop offset="100%" stop-color="#34A853"/>
+                  </linearGradient>
+                </defs>
+                <rect width="48" height="48" rx="12" fill="url(#gf-grad-card)"/>
+                <path d="M24 34s-11-7.5-11-14a7 7 0 0 1 11-5.74A7 7 0 0 1 35 20c0 6.5-11 14-11 14z" fill="#fff"/>
+              </svg>
+              <!-- LudoHealth -->
+              <svg v-else viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" class="source-icon">
+                <rect width="48" height="48" rx="12" fill="#67c23a"/>
+                <text x="24" y="33" text-anchor="middle" font-size="26" font-weight="bold" font-family="sans-serif" fill="#fff">L</text>
+              </svg>
+            </span>
+          </el-tooltip>
+        </div>
       </div>
 
       <!-- Activity text -->
@@ -62,9 +84,27 @@ defineProps<{
 .activity-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   font-size: 12px;
   color: #666;
   margin-bottom: 8px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.source-badge {
+  display: flex;
+  align-items: center;
+}
+
+.source-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
 }
 
 .user-name {

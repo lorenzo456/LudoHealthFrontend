@@ -61,7 +61,7 @@ const handleConfirm = async () => {
 
 const fetchCompletions = async (challengeId: number) => {
   const rows = await getTaskCompletions(challengeId, PLAYER_ID)
-  completions.value = Object.fromEntries(rows.map((r) => [r.task_id, r.completions_today]))
+  completions.value = Object.fromEntries(rows.map((r) => [r.task_id, r.completions]))
 }
 
 onMounted(async () => {

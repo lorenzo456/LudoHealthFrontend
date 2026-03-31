@@ -8,6 +8,8 @@ export interface CreateActivityPayload {
   activity_type_id: number
   task_id?: number
   properties: ActivityProperty[]
+  source?: string
+  created_at?: string
 }
 
 export interface ActivityDisplayProperty {
@@ -19,7 +21,7 @@ export interface ActivityDisplayProperty {
 export interface Activity {
   id: number
   created_at: string
-  device_name: string
+  source: string
   activity_type_name: string
   properties: ActivityDisplayProperty[]
 }
