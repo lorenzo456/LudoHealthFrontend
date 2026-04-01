@@ -13,7 +13,16 @@ const loading = ref(true)
 onMounted(async () => {
   try {
     const response = await getUserActivities(playerId)
-    activities.value = response
+    // Deduplicate Google Fit activities: show only the first entry per date
+    // (evaluate_activities creates clone rows per matched task; we only show the original)
+    const seen = new Set<string>()
+    activities.value = response.filter(a => {
+      if (a.source !== 'google_fit') return true
+      const key = a.created_at.slice(0, 10)
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
   } catch (error) {
     console.error('Error fetching activities:', error)
   } finally {

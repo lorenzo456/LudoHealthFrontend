@@ -43,10 +43,13 @@ defineProps<{
 
       <!-- Activity text -->
       <p class="activity-text">{{ activity.activity_type_name }}</p>
-      <div v-for="prop in activity.properties" :key="prop.name" class="activity-property">
-        <span class="property-name">{{ prop.name }}</span>
-        <span class="property-value">{{ prop.value }} {{ prop.unit }}</span>
+      <div v-if="activity.properties.length" class="activity-properties">
+        <div v-for="prop in activity.properties" :key="prop.name" class="activity-property">
+          <span class="property-name">{{ prop.name }}</span>
+          <span class="property-value">{{ prop.value }} {{ prop.unit }}</span>
+        </div>
       </div>
+      <p v-else class="no-properties">No details recorded</p>
 
       <!-- Footer: Points and Likes -->
       <!-- <div class="activity-footer">
@@ -125,6 +128,19 @@ defineProps<{
   font-size: 13px;
   color: #555;
   margin-bottom: 4px;
+}
+
+.activity-properties {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.no-properties {
+  font-size: 12px;
+  color: #bbb;
+  margin: 0;
+  font-style: italic;
 }
 
 .property-name {

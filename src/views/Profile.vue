@@ -96,45 +96,31 @@ const fetchWalkingData = async () => {
     }
 
     const data = await res.json()
-    const syncedSteps: Record<string, number> = JSON.parse(localStorage.getItem('hc_synced_steps') ?? '{}')
-    const today = new Date().toISOString().slice(0, 10)
-
     const buckets: { startTimeMillis: string; dataset: { point: { value: { intVal: number }[] }[] }[] }[] = data.bucket
+
     walkingData.value = buckets.map(bucket => ({
       date: new Date(Number(bucket.startTimeMillis)).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }),
       steps: bucket.dataset[0]?.point?.reduce((sum: number, p: { value: { intVal: number }[] }) => sum + (p.value[0]?.intVal ?? 0), 0) ?? 0,
     }))
 
-    let anyNewActivities = false
     for (const bucket of buckets) {
-      const isoDate = new Date(Number(bucket.startTimeMillis)).toISOString().slice(0, 10)
       const steps = bucket.dataset[0]?.point?.reduce(
         (sum: number, p: { value: { intVal: number }[] }) => sum + (p.value[0]?.intVal ?? 0), 0
       ) ?? 0
-
-      // Always re-sync today; skip past days already submitted with the same count
-      const alreadySynced = syncedSteps[isoDate] !== undefined
-      const stepsDelta = steps - (syncedSteps[isoDate] ?? 0)
-      if (steps === 0 || (alreadySynced && isoDate !== today) || stepsDelta <= 0) continue
+      if (steps === 0) continue
 
       await postActivity({
         player_id: playerId,
         activity_type_id: 1,
         source: 'google_fit',
-        created_at: isoDate,
-        properties: [{ activity_property_id: 1, value: stepsDelta }],
+        created_at: new Date(Number(bucket.startTimeMillis)).toISOString().slice(0, 10),
+        properties: [{ activity_property_id: 1, value: steps }],
       })
-      syncedSteps[isoDate] = steps
-      anyNewActivities = true
     }
 
-    localStorage.setItem('hc_synced_steps', JSON.stringify(syncedSteps))
     lastSynced.value = new Date()
-
-    if (anyNewActivities) {
-      const { points_awarded } = await evaluateActivities(playerId)
-      if (points_awarded > 0) ElMessage.success(`+${points_awarded} pts from Health Connect steps!`)
-    }
+    const { points_awarded } = await evaluateActivities(playerId)
+    if (points_awarded > 0) ElMessage.success(`+${points_awarded} pts from Health Connect steps!`)
   } catch {
     ElMessage.error('Failed to fetch Health Connect data')
   } finally {
@@ -182,7 +168,6 @@ const disconnectHealthConnect = () => {
   const token = localStorage.getItem('hc_access_token')
   if (token) (window as any).google?.accounts.oauth2.revoke(token)
   localStorage.removeItem('hc_access_token')
-  localStorage.removeItem('hc_synced_steps')
   healthConnectConnected.value = false
   walkingData.value = []
   lastSynced.value = null
