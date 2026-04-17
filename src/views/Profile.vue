@@ -121,7 +121,6 @@ const fetchWalkingData = async () => {
       if (steps === 0) continue
 
       await postActivity({
-        player_id: playerId,
         activity_type_id: 1,
         source: 'google_fit',
         created_at: new Date(Number(bucket.startTimeMillis)).toISOString().slice(0, 10),

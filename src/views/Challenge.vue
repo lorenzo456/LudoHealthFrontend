@@ -41,7 +41,6 @@ const handleConfirm = async () => {
   }))
   try {
     const result = await postActivity({
-      player_id: PLAYER_ID,
       activity_type_id: selectedTask.value.activity_type_id,
       task_id: selectedTask.value.id,
       properties,
