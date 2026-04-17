@@ -10,3 +10,4 @@ export const getPlayer = async (playerId: number): Promise<Player> => {
     throw error
   }
 }
+

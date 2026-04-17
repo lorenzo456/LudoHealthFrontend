@@ -1,7 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Bash(C:/Development/LudoHealth/LudoHealthBackend/.venv/Scripts/pip freeze:*)"
+      "Bash(C:/Development/LudoHealth/LudoHealthBackend/.venv/Scripts/pip freeze:*)",
+      "Bash(python -c ' *)",
+      "Bash(python migrate.py)",
+      "Bash(curl -s -X POST http://localhost:5000/activities -H 'Content-Type: application/json' -d '{\"player_id\": 2, \"activity_type_id\": 4, \"source\": \"godot_jump\", \"points\": -50, \"properties\": [{\"activity_property_id\": 7, \"value\": 50}, {\"activity_property_id\": 8, \"value\": \"bought double jump powerup\"}]}')",
+      "Bash(curl -s http://localhost:5000/players/2)",
+      "Bash(python -m json.tool)",
+      "Bash(curl -s http://localhost:5000/activities/2)",
+      "Bash(curl -s \"http://localhost:5000/activities/2\")",
+      "Bash(curl -s \"http://localhost:5000/activities/1\")"
     ]
   }
 }

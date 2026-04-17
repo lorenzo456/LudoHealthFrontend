@@ -4,7 +4,7 @@ import { getPlayer } from '@/api/Player'
 import { getCompletedChallenges, evaluateActivities } from '@/api/Challenges'
 import { postActivity } from '@/api/Activities'
 import type { Player } from '@/types/Player'
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useAuthStore } from '@/stores/auth'
 
@@ -12,7 +12,7 @@ const playerId = useAuthStore().player!.id
 const player = ref<Player | null>(null)
 const completed = ref<{ challenge_id: number; name: string; category: string; points: number; total_tasks: number; completed_at: string }[]>([])
 
-onMounted(async () => {
+const loadProfile = async () => {
   try {
     [player.value, completed.value] = await Promise.all([
       getPlayer(playerId),
@@ -21,8 +21,19 @@ onMounted(async () => {
   } catch (error) {
     console.error('Error fetching profile:', error)
   }
+}
 
-  if (healthConnectConnected.value) fetchWalkingData()
+const handleVisibilityChange = () => {
+  if (!document.hidden) loadProfile()
+}
+
+onUnmounted(() => {
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
+})
+
+onMounted(async () => {
+  await loadProfile()
+  document.addEventListener('visibilitychange', handleVisibilityChange)
 
   const waitForGoogle = setInterval(() => {
     if ((window as any).google) { initTokenClient(); clearInterval(waitForGoogle) }

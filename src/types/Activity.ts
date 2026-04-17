@@ -10,6 +10,7 @@ export interface CreateActivityPayload {
   properties: ActivityProperty[]
   source?: string
   created_at?: string
+  points?: number
 }
 
 export interface ActivityDisplayProperty {
@@ -22,6 +23,7 @@ export interface Activity {
   id: number
   created_at: string
   source: string
+  points: number
   activity_type_name: string
   properties: ActivityDisplayProperty[]
 }

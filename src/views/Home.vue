@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import Navbar from '@/components/Navbar.vue'
 import ActivityCard from '@/components/ActivityCard.vue'
-import { Activity } from '@/types/Activity'
-import { ref, onMounted } from 'vue'
+import type { Activity } from '@/types/Activity'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { getUserActivities } from '@/api/Activities'
 import { useAuthStore } from '@/stores/auth'
 
@@ -10,7 +10,7 @@ const playerId = useAuthStore().player!.id
 const activities = ref<Activity[]>([])
 const loading = ref(true)
 
-onMounted(async () => {
+const loadActivities = async () => {
   try {
     const response = await getUserActivities(playerId)
     // Deduplicate Google Fit activities: show only the first entry per date
@@ -28,6 +28,23 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+}
+
+const handleVisibilityChange = () => {
+  if (!document.hidden) loadActivities()
+}
+
+let pollInterval: ReturnType<typeof setInterval> | null = null
+
+onMounted(async () => {
+  await loadActivities()
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+  pollInterval = setInterval(loadActivities, 15000)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
+  if (pollInterval) clearInterval(pollInterval)
 })
 </script>
 
