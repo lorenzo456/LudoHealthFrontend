@@ -1,73 +1,45 @@
-# .
+# LudoHealth Frontend
 
-This template should help get you started developing with Vue 3 in Vite.
+## What is this project?
 
-## Recommended IDE Setup
+LudoHealth is a gamified health platform that encourages healthy habits by rewarding players with points for completing wellness challenges. This repository contains the frontend web application, built with Vue 3, TypeScript, and Element Plus.
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+The backend API lives in a separate repository ([LudoHealthBackend](../LudoHealthBackend)).
 
-## Recommended Browser Setup
+## What does it do?
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+- **Activity feed** — players see a live feed of their logged health activities
+- **Challenges** — players join groups and complete tiered challenges (physical, cognitive, social) to earn points
+- **Points** — a score is maintained per player; points are awarded for completing challenges and can be spent in connected games
+- **Google Fit integration** — step data is synced from Google Fit and evaluated against walking challenges automatically
+- **Game integration** — external games (e.g. GodotJump) can post game events and deduct points via the REST API using a Bearer token
+- **Profile** — players can view their score, completed challenges, and connected integrations
 
-## Type Support for `.vue` Imports in TS
+## Installation
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
+Requires **Node.js v20.19.0 or higher**.
 
 ```sh
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+## Running the project
+
+Start the backend API first (see the backend README), then run the frontend dev server:
 
 ```sh
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+The app will be available at `http://localhost:5173` by default.
 
-```sh
-npm run build
-```
+### Other commands
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
-
-```sh
-npm run test:unit
-```
-
-### Run End-to-End Tests with [Playwright](https://playwright.dev)
-
-```sh
-# Install browsers for the first run
-npx playwright install
-
-# When testing on CI, must build the project first
-npm run build
-
-# Runs the end-to-end tests
-npm run test:e2e
-# Runs the tests only on Chromium
-npm run test:e2e -- --project=chromium
-# Runs the tests of a specific file
-npm run test:e2e -- tests/example.spec.ts
-# Runs the tests in debug mode
-npm run test:e2e -- --debug
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+| Command | Description |
+|---|---|
+| `npm run build` | Type-check and build for production |
+| `npm run preview` | Preview the production build locally |
+| `npm run test:unit` | Run unit tests with Vitest |
+| `npm run test:e2e` | Run end-to-end tests with Playwright |
+| `npm run lint` | Lint and auto-fix with ESLint + oxlint |
+| `npm run format` | Format source files with Prettier |
