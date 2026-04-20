@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script>
+      const base = '/LudoHealthFrontend'
+      const path = window.location.pathname.slice(base.length) || '/'
+      window.location.replace(base + '/?r=' + encodeURIComponent(path + window.location.search) + window.location.hash)
+    </script>
+  </head>
+</html>

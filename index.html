@@ -4,7 +4,12 @@
     <meta charset="UTF-8" />
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite App</title>
+    <title>LudoHealth</title>
+    <script>
+      // Restore path encoded by 404.html (GitHub Pages SPA redirect)
+      const r = new URLSearchParams(window.location.search).get('r')
+      if (r) history.replaceState(null, '', '/LudoHealthFrontend' + r)
+    </script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
   </head>
   <body>
