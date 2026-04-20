@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // No props needed — all content is hardcoded for now
-import { Activity } from '@/types/Activity'
+import type { Activity } from '@/types/Activity'
 defineProps<{
   activity: Activity
 }>()

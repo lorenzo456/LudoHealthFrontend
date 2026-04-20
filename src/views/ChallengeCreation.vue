@@ -96,7 +96,8 @@ const onGroupSelect = async (groupId: number) => {
   challengeForm.level = 1
   try {
     groupChallenges.value = await getGroupChallenges(groupId) as { level: number }[]
-    const maxLevel = existingLevels.value.at(-1) ?? 0
+    const levels = existingLevels.value
+    const maxLevel = levels.length > 0 ? (levels[levels.length - 1] ?? 0) : 0
     challengeForm.level = maxLevel + 1
   } catch { groupChallenges.value = [] }
 }

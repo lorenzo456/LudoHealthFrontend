@@ -16,10 +16,10 @@
             <span>{{ completedTasks }} / {{ totalTasks }} tasks</span>
           </div>
           <el-progress
-            :percentage="totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0"
+            :percentage="(totalTasks ?? 0) > 0 ? Math.round(((completedTasks ?? 0) / (totalTasks ?? 1)) * 100) : 0"
             :stroke-width="8"
             :show-text="false"
-            :color="completedTasks === totalTasks && totalTasks > 0 ? '#67c23a' : '#409eff'"
+            :color="(completedTasks ?? 0) === (totalTasks ?? 0) && (totalTasks ?? 0) > 0 ? '#67c23a' : '#409eff'"
           />
         </div>
       </div>
