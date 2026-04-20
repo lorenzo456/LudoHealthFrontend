@@ -1,9 +1,12 @@
 <script setup lang="ts">
-// No props needed — all content is hardcoded for now
 import type { Activity } from '@/types/Activity'
+import { useAuthStore } from '@/stores/auth'
+
 defineProps<{
   activity: Activity
 }>()
+
+const player = useAuthStore().player
 </script>
 
 <template>
@@ -15,7 +18,7 @@ defineProps<{
     <div class="activity-content">
       <!-- Header: User + Date + Source -->
       <div class="activity-header">
-        <span class="user-name">Alice</span>
+        <span class="user-name">{{ player?.first_name }} {{ player?.last_name }}</span>
         <div class="header-right">
           <span class="activity-date">{{ activity.created_at }}</span>
           <el-tooltip :content="activity.source === 'google_fit' ? 'Google Fit' : 'LudoHealth'" placement="top">
